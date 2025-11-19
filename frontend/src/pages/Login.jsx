@@ -79,6 +79,14 @@ function LoginPage() {
             onChange={handleChange(field.name)}
           />
         ))}
+        <div className="flex justify-end">
+          <Link 
+            to="/forgot-password" 
+            className="text-sm text-indigo-300 hover:text-indigo-200 underline-offset-2"
+          >
+            Quên mật khẩu?
+          </Link>
+        </div>
         {error && (
           <p className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
             {error}
