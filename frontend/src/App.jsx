@@ -3,6 +3,8 @@ import LoginPage from "./pages/Login.jsx";
 import RegisterPage from "./pages/Register.jsx";
 import ForgotPasswordPage from "./pages/ForgotPassword.jsx";
 import ResetPasswordPage from "./pages/ResetPassword.jsx";
+import WorkspaceList from "./pages/WorkspaceList.jsx";
+import WorkspaceAdmin from "./pages/WorkspaceAdmin.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 
 function App() {
@@ -15,6 +17,8 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/workspaces" element={<WorkspaceList />} />
+          <Route path="/workspace/:workspaceId/admin" element={<WorkspaceAdmin />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
