@@ -110,9 +110,9 @@ export class WorkspaceController {
     return this.workspaceService.update(req.user.id, workspaceId, dto);
   }
 
-  @Get('members')
+  @Get('/:workspaceId/members')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLES.WORKSPACE_ADMIN)
+  @Roles(ROLES.WORKSPACE_MEMBER, ROLES.WORKSPACE_ADMIN)
   async getMembers(
     @Param('workspaceId') workspaceId: string,
     @Req() req,

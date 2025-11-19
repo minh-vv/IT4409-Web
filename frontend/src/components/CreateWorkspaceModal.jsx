@@ -5,6 +5,7 @@ function CreateWorkspaceModal({ onClose, onSuccess }) {
   const [formState, setFormState] = useState({
     name: "",
     description: "",
+    isPrivate: false,
   });
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -61,6 +62,7 @@ function CreateWorkspaceModal({ onClose, onSuccess }) {
         if (formState.description) {
           formData.append("description", formState.description);
         }
+        formData.append("isPrivate", formState.isPrivate.toString());
         formData.append("avatar", avatarFile);
 
         const newWorkspace = await authFetch("/api/workspaces", {
@@ -78,6 +80,7 @@ function CreateWorkspaceModal({ onClose, onSuccess }) {
           body: JSON.stringify({
             name: formState.name,
             description: formState.description || undefined,
+            isPrivate: formState.isPrivate,
           }),
         });
         onSuccess(newWorkspace);
@@ -261,6 +264,94 @@ function CreateWorkspaceModal({ onClose, onSuccess }) {
               placeholder="Mô tả ngắn gọn về workspace..."
               className="w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-white placeholder-slate-500 transition focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
             />
+          </div>
+
+          {/* Privacy Setting */}
+          <div>
+            <label className="mb-3 block text-sm font-medium text-slate-200">
+              Quyền riêng tư
+            </label>
+            <div className="space-y-3">
+              {/* Public Option */}
+              <label
+                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
+                  !formState.isPrivate
+                    ? "border-indigo-500 bg-indigo-500/10"
+                    : "border-slate-700 bg-slate-800 hover:border-slate-600"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="privacy"
+                  checked={!formState.isPrivate}
+                  onChange={() =>
+                    setFormState((prev) => ({ ...prev, isPrivate: false }))
+                  }
+                  className="mt-1 h-4 w-4 text-indigo-500 focus:ring-indigo-500"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="h-5 w-5 text-green-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span className="font-medium text-white">Public</span>
+                  </div>
+                  <p className="mt-1 text-sm text-slate-400">
+                    Ai có mã tham gia đều có thể vào trực tiếp
+                  </p>
+                </div>
+              </label>
+
+              {/* Private Option */}
+              <label
+                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
+                  formState.isPrivate
+                    ? "border-indigo-500 bg-indigo-500/10"
+                    : "border-slate-700 bg-slate-800 hover:border-slate-600"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="privacy"
+                  checked={formState.isPrivate}
+                  onChange={() =>
+                    setFormState((prev) => ({ ...prev, isPrivate: true }))
+                  }
+                  className="mt-1 h-4 w-4 text-indigo-500 focus:ring-indigo-500"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="h-5 w-5 text-yellow-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                    <span className="font-medium text-white">Private</span>
+                  </div>
+                  <p className="mt-1 text-sm text-slate-400">
+                    Cần admin phê duyệt mới có thể tham gia
+                  </p>
+                </div>
+              </label>
+            </div>
           </div>
 
           {error && (

@@ -2,13 +2,16 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth.js";
 import CreateWorkspaceModal from "../components/CreateWorkspaceModal.jsx";
+import JoinWorkspaceModal from "../components/JoinWorkspaceModal.jsx";
 import UserMenu from "../components/UserMenu.jsx";
 
 function WorkspaceList() {
   const [workspaces, setWorkspaces] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const { authFetch, logout, currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -44,7 +47,21 @@ function WorkspaceList() {
 
   const handleCreateSuccess = (newWorkspace) => {
     setWorkspaces([newWorkspace, ...workspaces]);
-    setIsModalOpen(false);
+    setIsCreateModalOpen(false);
+  };
+
+  const handleJoinSuccess = (result) => {
+    setIsJoinModalOpen(false);
+    if (result.status === "APPROVED") {
+      // Refresh workspace list and show success message
+      fetchWorkspaces();
+      setSuccessMessage(`Đã tham gia workspace "${result.workspaceName}" thành công!`);
+      setTimeout(() => setSuccessMessage(""), 5000);
+    } else {
+      // Request is pending
+      setSuccessMessage(`Yêu cầu tham gia workspace "${result.workspaceName}" đang chờ phê duyệt`);
+      setTimeout(() => setSuccessMessage(""), 5000);
+    }
   };
 
   return (
@@ -73,6 +90,13 @@ function WorkspaceList() {
           </p>
         </div>
 
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+            {successMessage}
+          </div>
+        )}
+
         {/* Error Message */}
         {error && (
           <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
@@ -94,13 +118,15 @@ function WorkspaceList() {
         {!isLoading && workspaces.length > 0 && (
           <div className="space-y-3">
             {workspaces.map((workspace) => (
-              <button
+              <div
                 key={workspace.id}
-                onClick={() => handleWorkspaceClick(workspace.id)}
-                className="group flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-6 py-5 text-left transition hover:border-gray-300 hover:shadow-md"
+                className="group flex w-full items-center justify-between rounded-lg border border-gray-200 bg-white px-6 py-5 transition hover:border-gray-300 hover:shadow-md"
               >
-                <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-2xl font-bold text-white">
+                <button
+                  onClick={() => handleWorkspaceClick(workspace.id)}
+                  className="flex flex-1 items-center gap-4 text-left"
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-sky-500 text-2xl font-bold text-white">
                     {workspace.avatarUrl ? (
                       <img
                         src={workspace.avatarUrl}
@@ -119,21 +145,52 @@ function WorkspaceList() {
                       {workspace.memberCount} {workspace.memberCount === 1 ? 'member' : 'members'}
                     </p>
                   </div>
+                </button>
+                <div className="flex items-center gap-2">
+                  {/* Admin Settings Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/workspace/${workspace.id}/admin`);
+                    }}
+                    className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                    title="Quản lý workspace"
+                  >
+                    <svg
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </button>
+                  <svg
+                    className="h-6 w-6 text-gray-400 transition group-hover:translate-x-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
                 </div>
-                <svg
-                  className="h-6 w-6 text-gray-400 transition group-hover:translate-x-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
+              </div>
             ))}
           </div>
         )}
@@ -150,13 +207,15 @@ function WorkspaceList() {
           </div>
         )}
 
-        {/* Create New Workspace Section */}
-        <div>
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
-            Create a new workspace
+        {/* Create or Join Workspace Section */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">
+            Tạo hoặc tham gia workspace
           </h2>
+
+          {/* Create Workspace Button */}
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsCreateModalOpen(true)}
             className="flex w-full items-center justify-between rounded-lg border-2 border-dashed border-gray-200 bg-gray-50 px-6 py-5 text-left transition hover:border-gray-300 hover:bg-gray-100"
           >
             <div className="flex items-center gap-4">
@@ -176,7 +235,47 @@ function WorkspaceList() {
                 </svg>
               </div>
               <span className="text-base font-medium text-gray-900">
-                Create a workspace
+                Tạo workspace mới
+              </span>
+            </div>
+            <svg
+              className="h-6 w-6 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+
+          {/* Join Workspace Button */}
+          <button
+            onClick={() => setIsJoinModalOpen(true)}
+            className="flex w-full items-center justify-between rounded-lg border-2 border-dashed border-blue-200 bg-blue-50 px-6 py-5 text-left transition hover:border-blue-300 hover:bg-blue-100"
+          >
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-white">
+                <svg
+                  className="h-8 w-8 text-blue-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+                  />
+                </svg>
+              </div>
+              <span className="text-base font-medium text-gray-900">
+                Tham gia workspace bằng mã
               </span>
             </div>
             <svg
@@ -197,10 +296,18 @@ function WorkspaceList() {
       </main>
 
       {/* Create Workspace Modal */}
-      {isModalOpen && (
+      {isCreateModalOpen && (
         <CreateWorkspaceModal
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => setIsCreateModalOpen(false)}
           onSuccess={handleCreateSuccess}
+        />
+      )}
+
+      {/* Join Workspace Modal */}
+      {isJoinModalOpen && (
+        <JoinWorkspaceModal
+          onClose={() => setIsJoinModalOpen(false)}
+          onSuccess={handleJoinSuccess}
         />
       )}
     </div>
