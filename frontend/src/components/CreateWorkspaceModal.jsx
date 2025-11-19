@@ -6,6 +6,8 @@ function CreateWorkspaceModal({ onClose, onSuccess }) {
     name: "",
     description: "",
   });
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const { authFetch } = useAuth();
@@ -14,24 +16,72 @@ function CreateWorkspaceModal({ onClose, onSuccess }) {
     setFormState((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
+  const handleAvatarChange = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        setError("Vui lòng chọn file ảnh");
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Kích thước ảnh không được vượt quá 5MB");
+        return;
+      }
+
+      setAvatarFile(file);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setError("");
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-      // Send as JSON for now (avatar upload can be added later)
-      const newWorkspace = await authFetch("/api/workspaces", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formState.name,
-          description: formState.description || undefined,
-        }),
-      });
-      onSuccess(newWorkspace);
+      // Use FormData if avatar is provided, otherwise JSON
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("name", formState.name);
+        if (formState.description) {
+          formData.append("description", formState.description);
+        }
+        formData.append("avatar", avatarFile);
+
+        const newWorkspace = await authFetch("/api/workspaces", {
+          method: "POST",
+          body: formData,
+        });
+        onSuccess(newWorkspace);
+      } else {
+        // Send as JSON if no avatar
+        const newWorkspace = await authFetch("/api/workspaces", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formState.name,
+            description: formState.description || undefined,
+          }),
+        });
+        onSuccess(newWorkspace);
+      }
     } catch (err) {
       // More detailed error message
       let errorMsg = err.message || "Không thể tạo workspace";
@@ -88,6 +138,96 @@ function CreateWorkspaceModal({ onClose, onSuccess }) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Avatar Upload */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-200">
+              Workspace Avatar (tùy chọn)
+            </label>
+            <div className="flex items-center gap-4">
+              {/* Preview */}
+              <div className="flex-shrink-0">
+                {avatarPreview ? (
+                  <div className="relative h-20 w-20">
+                    <img
+                      src={avatarPreview}
+                      alt="Avatar preview"
+                      className="h-20 w-20 rounded-lg object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white transition hover:bg-red-600"
+                      aria-label="Remove avatar"
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex h-20 w-20 items-center justify-center rounded-lg border-2 border-dashed border-slate-700 bg-slate-800">
+                    <svg
+                      className="h-8 w-8 text-slate-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>
+
+              {/* Upload Button */}
+              <div className="flex-1">
+                <label
+                  htmlFor="avatar-upload"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-700 hover:text-white"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                    />
+                  </svg>
+                  Upload Image
+                </label>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                />
+                <p className="mt-1 text-xs text-slate-500">
+                  PNG, JPG, GIF up to 5MB
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div>
             <label
               htmlFor="name"
