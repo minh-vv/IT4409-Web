@@ -156,6 +156,13 @@ export class UserService {
     const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
     if (!isMatch) throw new BadRequestException('Old password is incorrect');
 
+    // Validate confirmPassword
+    if (dto.newPassword !== dto.confirmPassword) {
+      throw new BadRequestException(
+        'New password and confirm password do not match',
+      );
+    }
+
     // Hash new password
     const hashed = await bcrypt.hash(dto.newPassword, 10);
 

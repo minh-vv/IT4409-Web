@@ -7,11 +7,9 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { UploadModule } from './upload/upload.module';
-import { ProfileController } from './profile/profile.controller';
-import { ProfileModule } from './profile/profile.module';
 
 @Module({
-  controllers: [AppController, ProfileController],
+  controllers: [AppController],
   providers: [AppService],
   imports: [
     PrismaModule,
@@ -22,7 +20,6 @@ import { ProfileModule } from './profile/profile.module';
     }),
     WorkspaceModule,
     UploadModule,
-    ProfileModule,
   ],
 })
 export class AppModule {}

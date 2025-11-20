@@ -42,9 +42,9 @@ export class UserController {
     return this.usersService.updateAvatar(req.user.id, file);
   }
 
-  // PATCH /api/users/me/password
+  // PATCH /api/users/me/change-password
   @UseGuards(JwtAuthGuard)
-  @Patch('me/password')
+  @Patch('me/change-password')
   async changePassword(@Req() req, @Body() dto: ChangePasswordDto) {
     return this.usersService.changePassword(req.user.id, dto);
   }
