@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createChannel } from "../api";
+import useAuth from "../hooks/useAuth";
 
 function CreateChannelModal({ workspaceId, onClose, onSuccess }) {
   const [formState, setFormState] = useState({
@@ -9,6 +10,7 @@ function CreateChannelModal({ workspaceId, onClose, onSuccess }) {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { authFetch } = useAuth(); // Get authFetch
 
   const handleChange = (field) => (event) => {
     setFormState((prev) => ({ ...prev, [field]: event.target.value }));
@@ -20,10 +22,14 @@ function CreateChannelModal({ workspaceId, onClose, onSuccess }) {
     setIsLoading(true);
 
     try {
-      const newChannel = await createChannel({
-        ...formState,
-        workspaceId,
-      });
+      // Pass authFetch to createChannel
+      const newChannel = await createChannel(
+        {
+          ...formState,
+          workspaceId,
+        },
+        authFetch
+      );
       onSuccess(newChannel);
     } catch (err) {
       let errorMsg = err.message || "Không thể tạo channel";
@@ -206,4 +212,3 @@ function CreateChannelModal({ workspaceId, onClose, onSuccess }) {
 }
 
 export default CreateChannelModal;
-

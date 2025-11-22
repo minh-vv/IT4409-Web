@@ -8,7 +8,7 @@ import AddChannelMemberModal from "./AddChannelMemberModal";
 function ChannelDetail() {
   const { channelId } = useParams();
   const { workspace } = useOutletContext(); // Passed from WorkspaceLayout
-  const { currentUser } = useAuth();
+  const { currentUser, authFetch } = useAuth(); // Get authFetch
   const [channel, setChannel] = useState(null);
   const [members, setMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,9 +22,10 @@ function ChannelDetail() {
   const fetchChannelData = async () => {
     setIsLoading(true);
     try {
+      // Use authFetch via helper functions
       const [channelData, membersData] = await Promise.all([
-        getChannelDetails(channelId),
-        getChannelMembers(channelId),
+        getChannelDetails(channelId, authFetch),
+        getChannelMembers(channelId, authFetch),
       ]);
       setChannel(channelData);
       setMembers(membersData);
@@ -115,6 +116,7 @@ function ChannelDetail() {
             <div className="text-center">
                 <h3 className="text-lg font-medium text-gray-900">Welcome to #{channel.name}!</h3>
                 <p>This is the start of the {channel.name} channel.</p>
+                <p className="mt-2 text-sm text-gray-500">{members.length} members</p>
             </div>
         </div>
       </div>
