@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate, Outlet, useLocation } from "react-router-dom";
-import { getChannels, request } from "../api";
+import { getChannels } from "../api";
+import useAuth from "../hooks/useAuth";
 import UserMenu from "./UserMenu";
 import CreateChannelModal from "./CreateChannelModal";
 
@@ -8,6 +9,7 @@ function WorkspaceLayout() {
   const { workspaceId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { authFetch } = useAuth(); // Use authFetch from useAuth
   const [workspace, setWorkspace] = useState(null);
   const [channels, setChannels] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -20,9 +22,10 @@ function WorkspaceLayout() {
   const fetchData = async () => {
     setIsLoading(true);
     try {
+      // Use authFetch instead of request directly
       const [workspaceData, channelsData] = await Promise.all([
-        request(`/api/workspaces/${workspaceId}`),
-        getChannels(workspaceId),
+        authFetch(`/api/workspaces/${workspaceId}`),
+        getChannels(workspaceId, authFetch), // Pass authFetch to helper
       ]);
       setWorkspace(workspaceData);
       setChannels(channelsData);
@@ -164,4 +167,3 @@ function WorkspaceLayout() {
 }
 
 export default WorkspaceLayout;
-
