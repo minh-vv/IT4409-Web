@@ -19,6 +19,13 @@ export class FileService {
   ) {}
 
   async listFiles(channelId: string) {
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelId },
+    });
+
+    if (!channel) {
+      throw new NotFoundException('Channel not found');
+    }
     return this.prisma.file.findMany({
       where: { channelId },
       orderBy: { createdAt: 'desc' },
@@ -31,6 +38,13 @@ export class FileService {
   }
 
   async uploadFiles(channelId: string, userId: string, files: MulterFile[]) {
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelId },
+    });
+
+    if (!channel) {
+      throw new NotFoundException('Channel not found');
+    }
     if (!files || files.length === 0)
       throw new BadRequestException('At least 1 file required');
 
@@ -60,7 +74,10 @@ export class FileService {
               s3Key: res.key,
               mimeType: original.mimetype,
               fileSize: original.size,
-              extension: safeName.split('.').pop() ?? '',
+              extension: (() => {
+                const parts = safeName.split('.');
+                return parts.length > 1 ? parts[parts.length - 1] : '';
+              })(),
             },
           });
         }),
@@ -89,9 +106,16 @@ export class FileService {
     if (record.channelId !== channelId)
       throw new ForbiddenException('File does not belong to this channel');
 
-    await s3Client.send(
-      new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: record.s3Key }),
-    );
+    try {
+      await s3Client.send(
+        new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: record.s3Key }),
+      );
+    } catch (err) {
+      console.error(
+        `Failed to delete S3 object for fileId=${fileId}, s3Key=${record.s3Key}:`,
+        err,
+      );
+    }
 
     await this.prisma.file.delete({ where: { id: fileId } });
 
