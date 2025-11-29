@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ROLES } from '../common/constants/roles.constant';
+import { Public } from '../common/decorators/public.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('channels/:channelId/meetings')
@@ -21,7 +22,7 @@ export class MeetingController {
   constructor(private readonly meetingService: MeetingService) {}
 
   /** START */
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(RolesGuard)
   @Roles(ROLES.CHANNEL_ADMIN)
   @Post('start')
   startMeeting(
@@ -33,7 +34,7 @@ export class MeetingController {
   }
 
   /** GET JOIN TOKEN */
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(ROLES.CHANNEL_MEMBER, ROLES.CHANNEL_ADMIN)
   @Get('token')
   getToken(@Req() req, @Param('channelId') channelId: string) {
@@ -41,7 +42,7 @@ export class MeetingController {
   }
 
   /** JOIN */
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(ROLES.CHANNEL_MEMBER, ROLES.CHANNEL_ADMIN)
   @Post('join')
   join(@Req() req, @Param('channelId') channelId: string) {
@@ -49,7 +50,7 @@ export class MeetingController {
   }
 
   /** LEAVE */
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(ROLES.CHANNEL_MEMBER, ROLES.CHANNEL_ADMIN)
   @Post('leave')
   leave(@Req() req, @Param('channelId') channelId: string) {
@@ -57,7 +58,7 @@ export class MeetingController {
   }
 
   /** END */
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(RolesGuard)
   @Roles(ROLES.CHANNEL_ADMIN)
   @Patch('end')
   end(@Req() req, @Param('channelId') channelId: string) {
@@ -65,13 +66,14 @@ export class MeetingController {
   }
 
   /** GET current meeting */
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   @Roles(ROLES.CHANNEL_MEMBER, ROLES.CHANNEL_ADMIN)
   @Get()
   get(@Param('channelId') channelId: string) {
     return this.meetingService.getMeeting(channelId);
   }
 
+  @Public()
   @Post('/daily/webhook')
   async dailyWebhook(@Body() body) {
     const event = body.event;
