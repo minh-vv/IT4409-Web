@@ -122,6 +122,7 @@ model Channel {
   updatedAt   DateTime         @updatedAt
 
   workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  folders     Folder[] @relation("ChannelToFolders")
   members     ChannelMember[]
   meetings    ChannelMeeting[] @relation("ChannelToMeeting")
   joinRequests ChannelJoinRequest[]
@@ -304,10 +305,11 @@ model Reaction {
   @@unique([reactableId, userId, emoji])
   @@index([userId])
 }
-
 model File {
   id         String   @id @default(uuid())
   channelId  String
+  folderId   String?     // <--- thêm
+
   uploadedBy String
   fileName   String
   fileUrl    String
@@ -318,11 +320,31 @@ model File {
   createdAt  DateTime @default(now())
 
   channel    Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  folder     Folder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
   uploader   User    @relation(fields: [uploadedBy], references: [id], onDelete: Cascade)
 
   @@index([channelId])
+  @@index([folderId])
   @@index([uploadedBy])
   @@index([createdAt])
+}
+
+
+model Folder {
+  id        String   @id @default(uuid())
+  name      String
+  channelId String
+  parentId  String?
+  createdAt DateTime @default(now())
+
+  channel   Channel  @relation("ChannelToFolders", fields: [channelId], references: [id], onDelete: Cascade)
+
+  parent    Folder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Folder[] @relation("FolderHierarchy")
+  files     File[]
+
+  @@index([channelId])
+  @@index([parentId])
 }
 
 model FileAttachment {

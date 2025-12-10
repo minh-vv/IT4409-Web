@@ -8,10 +8,10 @@ import { ConfigModule } from '@nestjs/config';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { UploadModule } from './upload/upload.module';
 import { ChannelModule } from './channel/channel.module';
-import { FileModule } from './file/file.module';
 import { MeetingModule } from './meeting/meeting.module';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
+import { MaterialModule } from './material/material.module';
 
 @Module({
   controllers: [AppController],
@@ -26,10 +26,10 @@ import { CommentModule } from './comment/comment.module';
     WorkspaceModule,
     UploadModule,
     ChannelModule,
-    FileModule,
     MeetingModule,
     PostModule,
     CommentModule,
+    MaterialModule,
   ],
 })
 export class AppModule {}
