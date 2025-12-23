@@ -106,6 +106,10 @@ npm run dev
 
 Frontend sẽ chạy tại `http://localhost:5173`
 
+## Sơ đồ dịch chuyển màn hình
+
+📊 Xem [Sơ đồ luồng màn hình](./SCREEN_FLOW.md) để hiểu rõ cách người dùng điều hướng giữa các màn hình trong ứng dụng.
+
 ## Cấu trúc thư mục
 
 ```
