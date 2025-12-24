@@ -353,7 +353,9 @@ export class ChatGateway
   }
 
   /**
-   * Add reaction to message
+   * Toggle reaction to message
+   * If user already reacted with this emoji, removes the reaction.
+   * If user hasn't reacted yet, adds the reaction.
    */
   @UseGuards(WsJwtGuard)
   @SubscribeMessage('reaction:add')

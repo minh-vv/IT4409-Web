@@ -650,7 +650,9 @@ export class ChatService {
   }
 
   /**
-   * Thêm reaction vào tin nhắn
+   * Toggle reaction vào tin nhắn
+   * Nếu user đã reaction với emoji này thì sẽ xóa reaction.
+   * Nếu chưa reaction thì sẽ thêm reaction mới.
    */
   async addReaction(
     userId: string,
@@ -1603,7 +1605,9 @@ export class ChatService {
   }
 
   /**
-   * Thêm reaction vào tin nhắn trong direct conversation
+   * Toggle reaction vào tin nhắn trong direct conversation
+   * Nếu user đã reaction với emoji này thì sẽ xóa reaction.
+   * Nếu chưa reaction thì sẽ thêm reaction mới.
    */
   async addDirectReaction(
     userId: string,

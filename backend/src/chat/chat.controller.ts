@@ -228,23 +228,23 @@ export class ChatController {
 
   /**
    * POST /api/channels/:channelId/chat/messages/:messageId/reactions
-   * Thêm reaction vào tin nhắn
+   * Toggle reaction vào tin nhắn
    */
   @Post('messages/:messageId/reactions')
   @ApiOperation({
-    summary: 'Thêm reaction vào tin nhắn',
+    summary: 'Toggle reaction vào tin nhắn',
     description:
-      'Thêm emoji reaction vào tin nhắn. Mỗi user chỉ được reaction 1 lần với mỗi emoji.',
+      'Toggle emoji reaction vào tin nhắn. Nếu user đã reaction với emoji này thì sẽ xóa reaction. Nếu chưa reaction thì sẽ thêm reaction mới. Response trả về "action" field để biết reaction đã được added hay removed.',
   })
   @ApiParam({ name: 'channelId', description: 'ID của channel' })
   @ApiParam({ name: 'messageId', description: 'ID của tin nhắn' })
   @ApiResponse({
     status: 201,
-    description: 'Thêm reaction thành công',
+    description: 'Toggle reaction thành công. Response chứa field "action" với giá trị "added" hoặc "removed"',
   })
   @ApiResponse({
     status: 400,
-    description: 'Đã reaction emoji này rồi hoặc tin nhắn đã bị xóa',
+    description: 'Tin nhắn đã bị xóa',
   })
   @ApiResponse({
     status: 403,

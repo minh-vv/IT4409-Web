@@ -3,7 +3,8 @@ import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
 
 export class AddReactionDto {
   @ApiProperty({
-    description: 'Emoji để reaction',
+    description:
+      'Emoji để toggle reaction. Nếu đã reaction emoji này thì sẽ xóa, chưa thì sẽ thêm.',
     example: '👍',
   })
   @IsString()
