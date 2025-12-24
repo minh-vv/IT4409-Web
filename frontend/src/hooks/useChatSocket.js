@@ -29,7 +29,6 @@ export function useChatSocket(token, channelId) {
     }
 
     console.log("useChatSocket: Connecting to", `${SOCKET_URL}/chat`);
-    console.log("useChatSocket: Token preview:", token.substring(0, 30) + "...");
 
     const socket = io(`${SOCKET_URL}/chat`, {
       auth: { token },
