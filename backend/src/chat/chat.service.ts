@@ -1097,6 +1097,15 @@ export class ChatService {
 
     // 4. Fetch all unread messages in a single query
     const conversationIds = participations.map((p) => p.conversation.id);
+    
+    // Early return if no conversations
+    if (conversationIds.length === 0) {
+      return {
+        conversations: [],
+        total: 0,
+      };
+    }
+    
     const allUnreadMessages = await this.prisma.message.findMany({
       where: {
         conversationId: { in: conversationIds },
