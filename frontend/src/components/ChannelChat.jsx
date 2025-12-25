@@ -39,6 +39,14 @@ function ChannelChat({ channelId, channelName, members = [] }) {
     setInitialMessages,
   } = useChatSocket(accessToken, channelId);
 
+  // Reset local pagination and message cache when switching channels
+  useEffect(() => {
+    setInitialMessages([]);
+    setPage(1);
+    setHasMore(true);
+    setReplyTo(null);
+  }, [channelId, setInitialMessages]);
+
   // Fetch message history from REST API
   const fetchMessageHistory = useCallback(
     async (pageNum = 1, prepend = false) => {
@@ -50,7 +58,12 @@ function ChannelChat({ channelId, channelName, members = [] }) {
 
         if (data?.messages) {
           if (prepend) {
-            setInitialMessages([...data.messages, ...messages]);
+            // IMPORTANT: Use functional update to avoid race condition with socket events
+            // This ensures we always merge with the latest messages state instead of overwriting
+            setInitialMessages((currentMessages) => [
+              ...data.messages,
+              ...currentMessages,
+            ]);
           } else {
             setInitialMessages(data.messages);
           }
@@ -64,7 +77,7 @@ function ChannelChat({ channelId, channelName, members = [] }) {
         setIsLoadingHistory(false);
       }
     },
-    [channelId, authFetch, setInitialMessages, messages]
+    [channelId, authFetch, setInitialMessages]
   );
 
   // Initial fetch
@@ -272,12 +285,23 @@ function ChannelChat({ channelId, channelName, members = [] }) {
           <div className="px-4 py-2">
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <div className="flex space-x-1">
-                <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: "0ms" }} />
-                <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: "150ms" }} />
-                <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: "300ms" }} />
+                <div
+                  className="h-2 w-2 animate-bounce rounded-full bg-gray-400"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <div
+                  className="h-2 w-2 animate-bounce rounded-full bg-gray-400"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <div
+                  className="h-2 w-2 animate-bounce rounded-full bg-gray-400"
+                  style={{ animationDelay: "300ms" }}
+                />
               </div>
               <span>
-                {otherTypingUsers.map((u) => u.fullName || u.username).join(", ")}{" "}
+                {otherTypingUsers
+                  .map((u) => u.fullName || u.username)
+                  .join(", ")}{" "}
                 đang nhập...
               </span>
             </div>
@@ -302,4 +326,3 @@ function ChannelChat({ channelId, channelName, members = [] }) {
 }
 
 export default ChannelChat;
-

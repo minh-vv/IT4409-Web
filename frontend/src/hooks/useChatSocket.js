@@ -185,10 +185,7 @@ export function useChatSocket(token, channelId) {
 
     // Join new channel
     socketRef.current.emit("channel:join", { channelId });
-
-    // Reset state
-    setMessages([]);
-    setTypingUsers([]);
+    // Wait for server confirmation to update joined state
     setIsJoined(false);
 
     return () => {
@@ -245,7 +242,11 @@ export function useChatSocket(token, channelId) {
   const removeReaction = useCallback(
     (messageId, emoji) => {
       if (!socketRef.current || !channelId) return;
-      socketRef.current.emit("reaction:remove", { channelId, messageId, emoji });
+      socketRef.current.emit("reaction:remove", {
+        channelId,
+        messageId,
+        emoji,
+      });
     },
     [channelId]
   );
@@ -289,11 +290,6 @@ export function useChatSocket(token, channelId) {
     setMessages(initialMessages);
   }, []);
 
-  // Add message locally (for optimistic updates)
-  const addMessageLocally = useCallback((message) => {
-    setMessages((prev) => [...prev, message]);
-  }, []);
-
   return {
     isConnected,
     isJoined,
@@ -309,9 +305,7 @@ export function useChatSocket(token, channelId) {
     stopTyping,
     markAsRead,
     setInitialMessages,
-    addMessageLocally,
   };
 }
 
 export default useChatSocket;
-
