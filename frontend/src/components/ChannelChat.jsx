@@ -9,6 +9,7 @@ function ChannelChat({ channelId, channelName, members = [] }) {
   const { accessToken, currentUser, authFetch } = useAuth();
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const messageRefs = useRef({});
 
   // Debug: Log token status
   useEffect(() => {
@@ -21,6 +22,7 @@ function ChannelChat({ channelId, channelName, members = [] }) {
   const [replyTo, setReplyTo] = useState(null);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
+  const [highlightMessageId, setHighlightMessageId] = useState(null);
 
   const {
     isConnected,
@@ -127,6 +129,16 @@ function ChannelChat({ channelId, channelName, members = [] }) {
   // Handle reply
   const handleReply = (message) => {
     setReplyTo(message);
+  };
+
+  const handleJumpToMessage = (messageId) => {
+    if (!messageId) return;
+    const targetEl = messageRefs.current[messageId];
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      setHighlightMessageId(messageId);
+      setTimeout(() => setHighlightMessageId(null), 1500);
+    }
   };
 
   // Filter out current user from typing users
@@ -266,16 +278,24 @@ function ChannelChat({ channelId, channelName, members = [] }) {
 
             {/* Messages */}
             {dateMessages.map((message) => (
-              <ChatMessage
+              <div
                 key={message.id}
-                message={message}
-                currentUserId={currentUser?.id}
-                onDelete={handleDelete}
-                onAddReaction={addReaction}
-                onRemoveReaction={removeReaction}
-                onReply={handleReply}
-                members={members}
-              />
+                ref={(el) => {
+                  if (el) messageRefs.current[message.id] = el;
+                }}
+              >
+                <ChatMessage
+                  message={message}
+                  currentUserId={currentUser?.id}
+                  onDelete={handleDelete}
+                  onAddReaction={addReaction}
+                  onRemoveReaction={removeReaction}
+                  onReply={handleReply}
+                  onJumpToMessage={handleJumpToMessage}
+                  isHighlighted={highlightMessageId === message.id}
+                  members={members}
+                />
+              </div>
             ))}
           </div>
         ))}

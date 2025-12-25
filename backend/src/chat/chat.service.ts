@@ -1137,6 +1137,25 @@ export class ChatService {
       }
     }
 
+    // Fetch presence for other participants to set initial online status
+    const otherUserIds = participations
+      .map(
+        (p) =>
+          p.conversation.participants.find((pp) => pp.userId !== userId)
+            ?.userId,
+      )
+      .filter((id): id is string => Boolean(id));
+
+    const uniqueOtherUserIds = Array.from(new Set(otherUserIds));
+    const onlinePresences = await this.prisma.userPresence.findMany({
+      where: {
+        userId: { in: uniqueOtherUserIds },
+        status: 'online',
+      },
+      select: { userId: true },
+    });
+    const onlineSet = new Set(onlinePresences.map((p) => p.userId));
+
     const filteredConversations: DirectConversationItemDto[] = [];
 
     for (const participation of participations) {
@@ -1174,6 +1193,7 @@ export class ChatService {
         fullName: otherUser.fullName,
         email: otherUser.email,
         avatarUrl: otherUser.avatarUrl ?? undefined,
+        isOnline: onlineSet.has(otherUser.id),
       };
 
       filteredConversations.push({
