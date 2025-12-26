@@ -47,26 +47,22 @@ function WorkspaceWelcome() {
     <div className="flex h-full flex-col bg-gray-50">
       {/* Header Section */}
       <div className="border-b border-gray-200 bg-white px-8 py-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{workspace?.name}</h1>
-            <p className="mt-2 text-gray-600">{workspace?.description || "Chưa có mô tả"}</p>
-          </div>
-          {isAdmin && (
-            <button
-              onClick={() => navigate(`/workspace/${workspace.id}/admin`)}
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 transition"
-            >
-              Quản lý Workspace
-            </button>
-          )}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {workspace?.name}
+          </h1>
+          <p className="mt-2 text-gray-600">
+            {workspace?.description || "Chưa có mô tả"}
+          </p>
         </div>
 
         {/* Join Code Card */}
         {isAdmin && workspace?.joinCode && (
           <div className="mt-6 flex max-w-md items-center justify-between rounded-lg border border-blue-100 bg-blue-50 p-4">
             <div>
-              <p className="text-sm font-medium text-blue-900">Mã tham gia Workspace</p>
+              <p className="text-sm font-medium text-blue-900">
+                Mã tham gia Workspace
+              </p>
               <p className="mt-1 font-mono text-lg font-bold text-blue-700 tracking-wider">
                 {workspace.joinCode}
               </p>
@@ -85,4 +81,3 @@ function WorkspaceWelcome() {
 }
 
 export default WorkspaceWelcome;
-

@@ -55,11 +55,15 @@ function WorkspaceList() {
     if (result.status === "APPROVED") {
       // Refresh workspace list and show success message
       fetchWorkspaces();
-      setSuccessMessage(`Đã tham gia workspace "${result.workspaceName}" thành công!`);
+      setSuccessMessage(
+        `Đã tham gia workspace "${result.workspaceName}" thành công!`
+      );
       setTimeout(() => setSuccessMessage(""), 5000);
     } else {
       // Request is pending
-      setSuccessMessage(`Yêu cầu tham gia workspace "${result.workspaceName}" đang chờ phê duyệt`);
+      setSuccessMessage(
+        `Yêu cầu tham gia workspace "${result.workspaceName}" đang chờ phê duyệt`
+      );
       setTimeout(() => setSuccessMessage(""), 5000);
     }
   };
@@ -142,54 +146,24 @@ function WorkspaceList() {
                       {workspace.name}
                     </h3>
                     <p className="mt-0.5 text-sm text-gray-600">
-                      {workspace.memberCount} {workspace.memberCount === 1 ? 'member' : 'members'}
+                      {workspace.memberCount}{" "}
+                      {workspace.memberCount === 1 ? "member" : "members"}
                     </p>
                   </div>
                 </button>
-                <div className="flex items-center gap-2">
-                  {/* Admin Settings Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/workspace/${workspace.id}/admin`);
-                    }}
-                    className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
-                    title="Quản lý workspace"
-                  >
-                    <svg
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                  </button>
-                  <svg
-                    className="h-6 w-6 text-gray-400 transition group-hover:translate-x-1"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </div>
+                <svg
+                  className="h-6 w-6 text-gray-400 transition group-hover:translate-x-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
               </div>
             ))}
           </div>
