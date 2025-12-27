@@ -134,22 +134,16 @@ export default function SearchBar() {
     const channelsCount = results.channels.length;
 
     if (index < channelsCount) {
-      // Try to navigate to channel, but if user is not a member, show preview modal
+      // Use isMember flag from search results to determine navigation
       const channel = results.channels[index];
 
-      try {
-        // Try to fetch channel details first to check if user is a member
-        await authFetch(`/api/channels/${channel.id}`);
-        // If successful, user is a member, navigate directly
+      if (channel.isMember) {
+        // User is a member, navigate directly
         navigate(`/workspace/${workspaceId}/channel/${channel.id}`);
-      } catch (error) {
-        // If 403 or 404, user is not a member, show preview modal
-        if (error.status === 403 || error.status === 404) {
-          setPreviewChannelId(channel.id);
-          setIsOpen(false);
-        } else {
-          console.error("Failed to check channel access:", error);
-        }
+      } else {
+        // User is not a member, show preview modal
+        setPreviewChannelId(channel.id);
+        setIsOpen(false);
         return; // Don't save to recent or close yet
       }
     } else {

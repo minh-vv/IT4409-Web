@@ -12,22 +12,21 @@ function ModalPreviewChannel({ channelId, workspaceId, onClose, onSuccess }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchChannelPreview = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const data = await authFetch(`/api/channels/${channelId}/preview`);
+        setChannelPreview(data);
+      } catch (err) {
+        console.error("Failed to fetch channel preview:", err);
+        setError(err.message || "Không thể tải thông tin channel");
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchChannelPreview();
-  }, [channelId]);
-
-  const fetchChannelPreview = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await authFetch(`/api/channels/${channelId}/preview`);
-      setChannelPreview(data);
-    } catch (err) {
-      console.error("Failed to fetch channel preview:", err);
-      setError(err.message || "Không thể tải thông tin channel");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [channelId, authFetch]);
 
   const handleJoinChannel = async () => {
     try {

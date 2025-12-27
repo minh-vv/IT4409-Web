@@ -530,6 +530,10 @@ export class WorkspaceService {
         name: true,
         description: true,
         isPrivate: true,
+        members: {
+          where: { userId },
+          select: { userId: true },
+        },
       },
       take: 10,
     });
@@ -560,7 +564,13 @@ export class WorkspaceService {
     });
 
     return {
-      channels,
+      channels: channels.map((c) => ({
+        id: c.id,
+        name: c.name,
+        description: c.description,
+        isPrivate: c.isPrivate,
+        isMember: c.members.length > 0,
+      })),
       members: members.map((m) => ({
         userId: m.userId,
         username: m.user.username,
