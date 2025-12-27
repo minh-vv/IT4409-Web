@@ -143,10 +143,10 @@ function ChatMessage({
 
   return (
     <div
-      className={`group relative flex gap-3 px-4 py-2 hover:bg-gray-50 ${
+      className={`group relative flex gap-3 px-4 py-3 hover:bg-gray-100 border-b border-gray-100 ${
         isDeleted ? "opacity-60" : ""
       } ${isHighlighted ? "bg-amber-50" : ""} ${
-        isOwner ? "flex-row-reverse" : ""
+        ""
       }`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => {
@@ -179,16 +179,10 @@ function ChatMessage({
 
       {/* Content */}
       <div
-        className={`min-w-0 ${
-          isOwner ? "max-w-[75%] text-right" : "flex-1"
-        }`}
+        className="min-w-0 flex-1 max-w-[75%]"
       >
         {/* Header */}
-        <div
-          className={`flex items-baseline gap-2 ${
-            isOwner ? "justify-end" : ""
-          }`}
-        >
+        <div className="flex items-baseline gap-2">
           <span
             onMouseEnter={handleShowProfile}
             onMouseLeave={handleHideProfile}
@@ -237,11 +231,11 @@ function ChatMessage({
 
         {/* Message content */}
         {isDeleted ? (
-          <p className="mt-1 text-sm text-gray-400 italic">
+          <p className="mt-1 text-base text-gray-400 italic leading-relaxed">
             Tin nhắn đã bị xóa
           </p>
         ) : (
-          <p className="mt-1 text-sm text-gray-800 whitespace-pre-wrap break-words">
+          <p className="mt-1 text-base text-gray-800 whitespace-pre-wrap break-words leading-relaxed">
             {renderContent(message.content)}
           </p>
         )}
