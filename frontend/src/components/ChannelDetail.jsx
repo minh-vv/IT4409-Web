@@ -315,10 +315,13 @@ function ChannelDetail() {
               </h2>
             </div>
 
-            {channel.description && (
-              <p
-                className="text-sm text-gray-500 truncate"
-                title={channel.description}
+            {channel.joinCode && (
+              <div
+                className="mt-1 flex items-center gap-2 text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
+                onClick={() => {
+                  navigator.clipboard.writeText(channel.joinCode);
+                  addToast("Đã sao chép mã tham gia channel", "success");
+                }}
               >
                 {channel.description}
               </p>
