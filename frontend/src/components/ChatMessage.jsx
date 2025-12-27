@@ -145,7 +145,9 @@ function ChatMessage({
     <div
       className={`group relative flex gap-3 px-4 py-2 hover:bg-gray-50 ${
         isDeleted ? "opacity-60" : ""
-      } ${isHighlighted ? "bg-amber-50" : ""}`}
+      } ${isHighlighted ? "bg-amber-50" : ""} ${
+        isOwner ? "flex-row-reverse" : ""
+      }`}
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => {
         setShowActions(false);
@@ -176,9 +178,17 @@ function ChatMessage({
       </div>
 
       {/* Content */}
-      <div className="flex-1 min-w-0">
+      <div
+        className={`min-w-0 ${
+          isOwner ? "max-w-[75%] text-right" : "flex-1"
+        }`}
+      >
         {/* Header */}
-        <div className="flex items-baseline gap-2">
+        <div
+          className={`flex items-baseline gap-2 ${
+            isOwner ? "justify-end" : ""
+          }`}
+        >
           <span
             onMouseEnter={handleShowProfile}
             onMouseLeave={handleHideProfile}
@@ -376,7 +386,11 @@ function ChatMessage({
 
       {/* Action buttons */}
       {showActions && !isDeleted && (
-        <div className="absolute right-4 top-1 flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-1 py-0.5 shadow-sm">
+        <div
+          className={`absolute top-1 flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-1 py-0.5 shadow-sm ${
+            "right-4"
+          }`}
+        >
           {/* Emoji reaction */}
           <div className="relative" ref={emojiPickerRef}>
             <button

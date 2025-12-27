@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useOutletContext, useNavigate } from "react-router-dom";
 import {
   leaveChannel,
@@ -21,6 +21,7 @@ import ChannelFiles from "./ChannelFiles";
 import ChannelMeeting from "./ChannelMeeting";
 import ChannelChat from "./ChannelChat";
 import UserProfilePage from "./UserProfilePage";
+import { Copy, FileText, Folder, MessageSquare, Search, Video } from "lucide-react";
 
 function ChannelDetail() {
   const { channelId } = useParams();
@@ -55,6 +56,11 @@ function ChannelDetail() {
   const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("chat");
   const [isMeetingMinimized, setIsMeetingMinimized] = useState(false);
+  const [onlineUsersCount, setOnlineUsersCount] = useState(0);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const chatSearchInputRef = useRef(null);
+  const [chatSearchFocusSignal, setChatSearchFocusSignal] = useState(0);
+  const [isChatSearchOpen, setIsChatSearchOpen] = useState(true);
 
   const fetchChannelData = useCallback(
     async (silent = false) => {
@@ -248,13 +254,13 @@ function ChannelDetail() {
       <div className={`flex flex-col h-full transition-[margin-right] duration-300 ${profileUser ? 'mr-[28rem]' : 'mr-0'}`}>
         {/* Header - Hide when in full meeting mode */}
         {!hideChrome && (
-        <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-6 py-3">
-          <div>
-            <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2.5">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
               {channel.isPrivate ? (
                 <svg
-                  width="30px"
-                  height="30px"
+                  width="20px"
+                  height="20px"
                   viewBox="0 0 16 16"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -281,8 +287,8 @@ function ChannelDetail() {
                   id="Layer_1"
                   xmlns="http://www.w3.org/2000/svg"
                   xmlnsXlink="http://www.w3.org/1999/xlink"
-                  width="30px"
-                  height="30px"
+                  width="20px"
+                  height="20px"
                   viewBox="0 0 64 64"
                   enableBackground="new 0 0 64 64"
                   xmlSpace="preserve"
@@ -304,59 +310,68 @@ function ChannelDetail() {
                 </svg>
               )}
 
-              <h2 className="text-2xl font-bold text-gray-900 leading-tight">
+              <h2 className="truncate text-xl font-bold text-gray-900 leading-tight">
                 {channel.name}
               </h2>
             </div>
 
             {channel.description && (
-              <p className="text-sm text-gray-500">{channel.description}</p>
+              <p
+                className="text-sm text-gray-500 truncate"
+                title={channel.description}
+              >
+                {channel.description}
+              </p>
             )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsMembersModalOpen(true)}
+              className="text-sm font-medium text-gray-600 hover:underline"
+            >
+              {onlineUsersCount}/{members.length} thành viên đang online
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (activeTab !== "chat") setActiveTab("chat");
+                setIsChatSearchOpen((open) => {
+                  const next = !open;
+                  if (next) setChatSearchFocusSignal((v) => v + 1);
+                  return next;
+                });
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+              title="Tìm kiếm tin nhắn"
+            >
+              <Search className="h-5 w-5" />
+              <span>Search tin nhắn</span>
+            </button>
 
             {channel.joinCode && (
-              <div
-                className="mt-1 flex items-center gap-2 text-xs text-gray-400 hover:text-gray-600 cursor-pointer"
+              <button
+                type="button"
                 onClick={() => {
                   navigator.clipboard.writeText(channel.joinCode);
                   addToast("Đã sao chép mã tham gia channel", "success");
                 }}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                title="Sao chép mã tham gia"
               >
-                <span>Mã tham gia: {channel.joinCode}</span>
-
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M6 11C6 8.17157 6 6.75736 6.87868 5.87868C7.75736 5 9.17157 5 12 5H15C17.8284 5 19.2426 5 20.1213 5.87868C21 6.75736 21 8.17157 21 11V16C21 18.8284 21 20.2426 20.1213 21.1213C19.2426 22 17.8284 22 15 22H12C9.17157 22 7.75736 22 6.87868 21.1213C6 20.2426 6 18.8284 6 16V11Z"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  />
-                  <path
-                    d="M6 19C4.34315 19 3 17.6569 3 16V10C3 6.22876 3 4.34315 4.17157 3.17157C5.34315 2 7.22876 2 11 2H15C16.6569 2 18 3.34315 18 5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                  />
-                </svg>
-              </div>
+                <Copy className="h-5 w-5" />
+                <span>Mã tham gia</span>
+                <span className="font-mono text-xs tracking-wider text-gray-700 select-none"></span>
+              </button>
             )}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsMembersModalOpen(true)}
-              className="text-sm font-medium text-gray-600 hover:underline"
-            >
-              {members.length} thành viên
-            </button>
 
             {canManage && (
               <>
                 {channel.isPrivate && (
                   <button
+                    type="button"
                     onClick={() => setIsRequestsModalOpen(true)}
                     className="text-sm font-medium text-indigo-600 hover:underline"
                   >
@@ -365,6 +380,7 @@ function ChannelDetail() {
                 )}
 
                 <button
+                  type="button"
                   onClick={() => setIsAddMemberModalOpen(true)}
                   className="text-sm font-medium text-indigo-600 hover:underline"
                 >
@@ -372,6 +388,7 @@ function ChannelDetail() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => setIsUpdateModalOpen(true)}
                   className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
                   title="Cài đặt channel"
@@ -400,8 +417,9 @@ function ChannelDetail() {
             )}
 
             <button
+              type="button"
               onClick={handleLeaveChannel}
-              className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700"
+              className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-red-700"
               title="Rời khỏi channel"
             >
               <svg
@@ -426,61 +444,77 @@ function ChannelDetail() {
       {/* Tabs */}
       {!hideChrome && (
         <div className="border-b border-gray-200">
-          <nav className="flex -mb-px px-6">
+          <nav className="flex -mb-px px-4">
             <button
+              type="button"
               onClick={() => {
                 setActiveTab("posts");
                 if (isInMeeting && !isMeetingMinimized)
                   setIsMeetingMinimized(true);
               }}
-              className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+              className={`py-2.5 px-4 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "posts"
                   ? "border-indigo-500 text-indigo-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Bài đăng
+              <span className="inline-flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Bài đăng
+              </span>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setActiveTab("chat");
                 if (isInMeeting && !isMeetingMinimized)
                   setIsMeetingMinimized(true);
               }}
-              className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+              className={`py-2.5 px-4 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "chat"
                   ? "border-indigo-500 text-indigo-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              💬 Chat
+              <span className="inline-flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Chat
+              </span>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setActiveTab("meeting");
                 setIsMeetingMinimized(false);
               }}
-              className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+              className={`py-2.5 px-4 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "meeting"
                   ? "border-indigo-500 text-indigo-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              🎥 Meeting
+              <span className="inline-flex items-center gap-2">
+                <Video className="h-4 w-4" />
+                Meeting
+              </span>
             </button>
             <button
+              type="button"
               onClick={() => {
                 setActiveTab("files");
                 if (isInMeeting && !isMeetingMinimized)
                   setIsMeetingMinimized(true);
               }}
-              className={`py-4 px-6 text-sm font-medium border-b-2 transition-colors ${
+              className={`py-2.5 px-4 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === "files"
                   ? "border-indigo-500 text-indigo-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              📁 Files & Materials
+              <span className="inline-flex items-center gap-2">
+                <Folder className="h-4 w-4" />
+                Files & Materials
+              </span>
             </button>
           </nav>
         </div>
@@ -617,6 +651,14 @@ function ChannelDetail() {
             channelId={channelId}
             channelName={channel.name}
             members={members}
+            onOnlineUsersChange={(users) => {
+              const safeUsers = Array.isArray(users) ? users : [];
+              setOnlineUsers(safeUsers);
+              setOnlineUsersCount(safeUsers.length);
+            }}
+            searchInputRef={chatSearchInputRef}
+            searchFocusSignal={chatSearchFocusSignal}
+            isSearchOpen={isChatSearchOpen}
           />
         </div>
 
@@ -845,6 +887,7 @@ function ChannelDetail() {
       {isMembersModalOpen && (
         <ChannelMembersModal
           channelId={channelId}
+          onlineUsers={onlineUsers}
           onClose={() => setIsMembersModalOpen(false)}
           onUpdate={() => fetchChannelData(true)}
         />
