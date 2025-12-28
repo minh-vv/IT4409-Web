@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import LinkPreviews from "./LinkPreview";
-import { FileText, FileArchive, FileAudio, FileVideo } from "lucide-react";
+import { FileArchive, FileAudio, FileVideo } from "lucide-react";
 import FilePreviewModal from "./FilePreviewModal";
 
 const REACTION_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "👏"];
