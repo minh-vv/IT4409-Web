@@ -160,12 +160,12 @@ function AddChannelMemberModal({ workspaceId, channelId, onClose, onSuccess }) {
 
             {/* Messages */}
             {error && (
-              <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
               </div>
             )}
             {successMsg && (
-              <div className="rounded-xl border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm text-green-200">
+              <div className="rounded-xl border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700">
                 {successMsg}
               </div>
             )}

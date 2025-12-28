@@ -31,6 +31,7 @@ import {
 } from "../api";
 import LinkPreviews from "./LinkPreview";
 import FilePreviewModal from "./FilePreviewModal";
+import ConfirmationModal from "./ConfirmationModal";
 
 const REACTION_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "👏"];
 
@@ -151,6 +152,10 @@ function PostDetailModal({
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editingCommentContent, setEditingCommentContent] = useState("");
   const [showReactionPicker, setShowReactionPicker] = useState(false);
+  const [deleteCommentConfirm, setDeleteCommentConfirm] = useState({
+    isOpen: false,
+    commentId: null,
+  });
   const [activeCommentMenu, setActiveCommentMenu] = useState(null);
   const [showCommentReactionPicker, setShowCommentReactionPicker] =
     useState(null);
@@ -276,13 +281,18 @@ function PostDetailModal({
 
   // Handle delete comment
   const handleDeleteComment = async (commentId) => {
-    if (!window.confirm("Are you sure you want to delete this comment?")) return;
+    setDeleteCommentConfirm({ isOpen: true, commentId });
+  };
+
+  const confirmDeleteComment = async () => {
+    if (!deleteCommentConfirm.commentId) return;
 
     try {
-      await deletePostComment(channelId, postId, commentId, authFetch);
+      await deletePostComment(channelId, postId, deleteCommentConfirm.commentId, authFetch);
       fetchComments();
       fetchPost();
       onPostUpdated?.();
+      setDeleteCommentConfirm({ isOpen: false, commentId: null });
     } catch (err) {
       console.error("Failed to delete comment:", err);
     }
@@ -953,6 +963,18 @@ function PostDetailModal({
             )}
           </div>
         </div>
+
+        {/* Delete Comment Confirmation */}
+        <ConfirmationModal
+          isOpen={deleteCommentConfirm.isOpen}
+          onClose={() => setDeleteCommentConfirm({ isOpen: false, commentId: null })}
+          onConfirm={confirmDeleteComment}
+          title="Delete Comment"
+          message="Are you sure you want to delete this comment? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          variant="danger"
+        />
 
         {previewFile && (
           <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />

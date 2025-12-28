@@ -18,6 +18,7 @@ import UpdateChannelModal from "./UpdateChannelModal";
 import AddChannelMemberModal from "./AddChannelMemberModal";
 import ChannelMembersModal from "./ChannelMembersModal";
 import ChannelJoinRequestsModal from "./ChannelJoinRequestsModal";
+import ConfirmationModal from "./ConfirmationModal";
 import ChannelFiles from "./ChannelFiles";
 import ChannelMeeting from "./ChannelMeeting";
 import ChannelChat from "./ChannelChat";
@@ -59,6 +60,9 @@ function ChannelDetail() {
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
   const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
+  const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = useState(false);
+  const [isDeletePostConfirmOpen, setIsDeletePostConfirmOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState(null);
   const [activeTab, setActiveTab] = useState("chat");
   const [isMeetingMinimized, setIsMeetingMinimized] = useState(false);
   const [onlineUsersCount, setOnlineUsersCount] = useState(0);
@@ -123,7 +127,10 @@ function ChannelDetail() {
   };
 
   const handleLeaveChannel = async () => {
-    if (!window.confirm("Are you sure you want to leave this channel?")) return;
+    setIsLeaveConfirmOpen(true);
+  };
+
+  const confirmLeaveChannel = async () => {
     try {
       await leaveChannel(channelId, authFetch);
       if (refreshChannels) refreshChannels();
@@ -196,11 +203,18 @@ function ChannelDetail() {
     }
   };
 
-  const handleDeletePost = async (postId) => {
-    if (!window.confirm("Are you sure you want to delete this post?")) return;
+  const handleDeletePost = (postId) => {
+    setPostToDelete(postId);
+    setIsDeletePostConfirmOpen(true);
+  };
+
+  const confirmDeletePost = async () => {
+    if (!postToDelete) return;
     try {
-      await deletePost(channelId, postId, authFetch);
+      await deletePost(channelId, postToDelete, authFetch);
       addToast("Post deleted", "success");
+      setPostToDelete(null);
+      setIsDeletePostConfirmOpen(false);
       fetchPosts();
     } catch (err) {
       addToast(err.message || "Failed to delete post", "error");
@@ -831,6 +845,33 @@ function ChannelDetail() {
             onUpdate={() => fetchChannelData(true)}
           />
         )}
+
+        {/* Leave Channel Confirmation */}
+        <ConfirmationModal
+          isOpen={isLeaveConfirmOpen}
+          onClose={() => setIsLeaveConfirmOpen(false)}
+          onConfirm={confirmLeaveChannel}
+          title="Leave Channel"
+          message="Are you sure you want to leave this channel? You will need to be re-invited to rejoin."
+          confirmText="Leave"
+          cancelText="Cancel"
+          variant="danger"
+        />
+
+        {/* Delete Post Confirmation */}
+        <ConfirmationModal
+          isOpen={isDeletePostConfirmOpen}
+          onClose={() => {
+            setIsDeletePostConfirmOpen(false);
+            setPostToDelete(null);
+          }}
+          onConfirm={confirmDeletePost}
+          title="Delete Post"
+          message="Are you sure you want to delete this post? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          variant="danger"
+        />
 
         {/* User Profile Panel */}
         {profileUser && (

@@ -5,6 +5,7 @@ import { useToast } from "../contexts/ToastContext";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import ChatSearchBar from "./ChatSearchBar";
+import ConfirmationModal from "./ConfirmationModal";
 import { uploadMessageFiles, searchChannelMessages } from "../api";
 
 function ChannelChat({
@@ -35,6 +36,10 @@ function ChannelChat({
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState({
+    isOpen: false,
+    messageId: null,
+  });
 
   useEffect(() => {
     if (isSearchOpen) return;
@@ -243,8 +248,13 @@ function ChannelChat({
 
   // Handle delete message
   const handleDelete = (messageId) => {
-    if (window.confirm("Are you sure you want to delete this message?")) {
-      deleteMessage(messageId);
+    setDeleteConfirmModal({ isOpen: true, messageId });
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirmModal.messageId) {
+      deleteMessage(deleteConfirmModal.messageId);
+      setDeleteConfirmModal({ isOpen: false, messageId: null });
     }
   };
 
@@ -644,6 +654,17 @@ function ChannelChat({
         disabled={!isConnected}
       />
 
+      {/* Delete Message Confirmation */}
+      <ConfirmationModal
+        isOpen={deleteConfirmModal.isOpen}
+        onClose={() => setDeleteConfirmModal({ isOpen: false, messageId: null })}
+        onConfirm={confirmDelete}
+        title="Delete Message"
+        message="Are you sure you want to delete this message? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }
