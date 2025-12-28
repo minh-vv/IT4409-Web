@@ -2,10 +2,10 @@ function ConfirmationModal({
   isOpen, 
   onClose, 
   onConfirm, 
-  title = "Xác nhận",
-  message = "Bạn có chắc chắn muốn thực hiện hành động này?",
-  confirmText = "Xác nhận",
-  cancelText = "Hủy",
+  title = "Confirm Action",
+  message = "Are you sure you want to perform this action?",
+  confirmText = "Confirm",
+  cancelText = "Cancel",
   variant = "danger" // "danger" or "primary"
 }) {
   if (!isOpen) return null;
